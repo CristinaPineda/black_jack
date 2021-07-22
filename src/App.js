@@ -29,6 +29,7 @@ class App extends React.Component {
       const deckID = gettingDeckJSON.deck_id;
       localStorage.setItem('deck-id', deckID);
     }
+    
     this.setState({
       deckID: localStorage.getItem('deck-id'),
       playerPoints: 0,
