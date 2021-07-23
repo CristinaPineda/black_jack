@@ -16,6 +16,7 @@ class App extends React.Component {
       lastDraw: [],
       playerCards: [],
       playerPoints: 0,
+      playerLost: false,
       remainingCards: '',
       shuffled: false,
     };
@@ -55,7 +56,7 @@ class App extends React.Component {
   }
 
   async fetchCard() {
-    const { deckID } = this.state;
+    const { deckID, playerPoints } = this.state;
     const fetchCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
     const cardJSON = await fetchCard.json();
     const [card] = cardJSON.cards;
@@ -86,23 +87,29 @@ class App extends React.Component {
   }
 
   render() {
-    const { playerCards, dealerCards, playerPoints } = this.state;
+    const { playerCards, dealerCards } = this.state;
     return (
-      <div className="container">
+      <main className="container">
+        <h1>Blackjack!</h1>
         <div className="dealer-card">
+          <h4>Dealer:</h4>
           {dealerCards.map((card) => (
             <img key="current-card" src={card.image} alt="dealer cards" />
           ))}
         </div>
         <div className="player-card">
-          {playerCards.map((card) => (
-            <img key="current-card" src={card.image} alt="player cards" />
-          ))}
+          <h4>Suas cartas:</h4>
+          <div>
+            {playerCards.map((card) => (
+              <img key="current-card" src={card.image} alt="player cards" />
+            ))}
+          </div>
         </div>
-        <span>{playerPoints}</span>
-        <button onClick={this.fetchCard}>Pegue uma carta</button>
-        <button onClick={this.shuffleDeck}>Embaralhar Deck</button>
-      </div>
+        <div className="play-buttons">
+          <button onClick={this.fetchCard}>Pegue uma carta</button>
+          <button onClick={this.shuffleDeck}>Embaralhar Deck</button>
+        </div>
+      </main>
     );
   }
 }
