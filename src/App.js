@@ -24,6 +24,16 @@ class App extends React.Component {
   componentDidMount() {
     this.fetchDeck();
   }
+  async shuffleDeck() {
+    const { deckID } = this.state;
+    const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
+
+    this.setState({
+      playerPoints: 0,
+      remainingCards: shufflingDeck.remaining,
+      shuffled: true,
+    });
+  }
 
   async fetchDeck() {
     if (!localStorage.getItem('deck-id')) {
@@ -56,7 +66,7 @@ class App extends React.Component {
   }
 
   async fetchCard() {
-    const { deckID, playerPoints } = this.state;
+    const { deckID, playerPoints, remainingCards } = this.state;
     const fetchCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
     const cardJSON = await fetchCard.json();
     const [card] = cardJSON.cards;
@@ -77,17 +87,10 @@ class App extends React.Component {
       remainingCards: cardJSON.remaining,
       shuffled: false,
     }));
-  }
 
-  async shuffleDeck() {
-    const { deckID } = this.state;
-    const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
-
-    this.setState({
-      playerPoints: 0,
-      remainingCards: shufflingDeck.remaining,
-      shuffled: true,
-    });
+    if (remainingCards < 10) {
+      this.shuffleDeck();
+    }
   }
 
   render() {
