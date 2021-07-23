@@ -13,7 +13,6 @@ class App extends React.Component {
       deckID: '',
       dealerCards: [],
       dealerPoints: 0,
-      lastDraw: [],
       playerCards: [],
       playerPoints: 0,
       playerLost: false,
@@ -58,7 +57,6 @@ class App extends React.Component {
       deckID: deckID,
       dealerCards: cardJSON.cards,
       dealerPoints: prevState.dealerPoints + parseInt(card.value),
-      lastDraw: cardJSON.cards,
       playerPoints: 0,
       remainingCards: cardJSON.remaining,
       shuffled: false,
@@ -81,14 +79,21 @@ class App extends React.Component {
       }
     }
 
-    this.setState((prevState) => ({
-      playerCards: [...prevState.playerCards, card],
-      playerPoints: prevState.playerPoints + parseInt(card.value),
-      remainingCards: cardJSON.remaining,
-      shuffled: false,
-    }));
+    if ((playerPoints > 10 && card.value >= 10) || (playerPoints > 15 && card.value >= 6)) {
+      this.setState((prevState) => ({
+        playerCards: [...prevState.playerCards, card],
+        playerLost: true,
+      }));
+    } else {
+      this.setState((prevState) => ({
+        playerCards: [...prevState.playerCards, card],
+        playerPoints: prevState.playerPoints + parseInt(card.value),
+        remainingCards: cardJSON.remaining,
+        shuffled: false,
+      }));
+    }
 
-    if (remainingCards < 10) {
+    if (remainingCards < 15) {
       this.shuffleDeck();
     }
   }
