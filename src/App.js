@@ -15,7 +15,9 @@ class App extends React.Component {
       remainingCards: '',
       shuffled: false,
       playerPoints: 0,
-      housePoints: 0,
+      playerCards: [],
+      dealerPoints: 0,
+      dealerCards: [],
     };
   }
   componentDidMount() {
@@ -29,11 +31,24 @@ class App extends React.Component {
       const deckID = gettingDeckJSON.deck_id;
       localStorage.setItem('deck-id', deckID);
     }
-    
-    this.setState({
-      deckID: localStorage.getItem('deck-id'),
+    const deckID = localStorage.getItem('deck-id');
+    const fetchDealerCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
+    const cardJSON = await fetchDealerCard.json();
+    if (cardJSON.cards.value === 'KING' || cardJSON.cards.value === 'QUEEN' || cardJSON.cards.value === 'JACK') {
+      cardJSON.cards.value = 10;
+    } else if (cardJSON.cards.value === 'ACE') {
+      cardJSON.cards.value = 11;
+    }
+
+    this.setState((prevState) => ({
+      deckID: deckID,
+      lastDraw: cardJSON.cards,
+      shuffled: false,
+      remainingCards: cardJSON.remaining,
       playerPoints: 0,
-    });
+      dealerPoints: cardJSON.value,
+      dealerCards: cardJSON.cards,
+    }));
   }
 
   async fetchCard() {
@@ -46,9 +61,8 @@ class App extends React.Component {
     } else if (card.value === 'ACE') {
       card.value = 11;
     }
-    console.log(card.value);
     this.setState((prevState) => ({
-      lastDraw: cardJSON.cards,
+      playerCards: cardJSON.cards,
       remainingCards: cardJSON.remaining,
       shuffled: false,
       playerPoints: prevState.playerPoints + parseInt(card.value),
@@ -67,12 +81,17 @@ class App extends React.Component {
   }
 
   render() {
-    const { lastDraw } = this.state;
+    const { playerCards, dealerCards } = this.state;
     return (
       <div className="container">
-        <div className="card">
-          {lastDraw.map((card) => (
-            <img key="current-card" src={card.image} alt="" />
+        <div className="dealer-card">
+          {dealerCards.map((card) => (
+            <img key="current-card" src={card.image} width="100px" />
+          ))}
+        </div>
+        <div className="player-card">
+          {playerCards.map((card) => (
+            <img key="current-card" src={card.image} width="100px" />
           ))}
         </div>
         <button onClick={this.fetchCard}>Pegue uma carta</button>
