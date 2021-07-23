@@ -11,13 +11,13 @@ class App extends React.Component {
 
     this.state = {
       deckID: '',
+      dealerCards: [],
+      dealerPoints: 0,
       lastDraw: [],
+      playerCards: [],
+      playerPoints: 0,
       remainingCards: '',
       shuffled: false,
-      playerPoints: 0,
-      playerCards: [],
-      dealerPoints: 0,
-      dealerCards: [],
     };
   }
   componentDidMount() {
@@ -31,9 +31,12 @@ class App extends React.Component {
       const deckID = gettingDeckJSON.deck_id;
       localStorage.setItem('deck-id', deckID);
     }
+
     const deckID = localStorage.getItem('deck-id');
     const fetchDealerCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
     const cardJSON = await fetchDealerCard.json();
+    const [card] = cardJSON.cards;
+
     if (cardJSON.cards.value === 'KING' || cardJSON.cards.value === 'QUEEN' || cardJSON.cards.value === 'JACK') {
       cardJSON.cards.value = 10;
     } else if (cardJSON.cards.value === 'ACE') {
@@ -42,12 +45,12 @@ class App extends React.Component {
 
     this.setState((prevState) => ({
       deckID: deckID,
-      lastDraw: cardJSON.cards,
-      shuffled: false,
-      remainingCards: cardJSON.remaining,
-      playerPoints: 0,
-      dealerPoints: cardJSON.value,
       dealerCards: cardJSON.cards,
+      dealerPoints: prevState.dealerPoints + parseInt(card.value),
+      lastDraw: cardJSON.cards,
+      playerPoints: 0,
+      remainingCards: cardJSON.remaining,
+      shuffled: false,
     }));
   }
 
@@ -63,9 +66,9 @@ class App extends React.Component {
     }
     this.setState((prevState) => ({
       playerCards: cardJSON.cards,
+      playerPoints: prevState.playerPoints + parseInt(card.value),
       remainingCards: cardJSON.remaining,
       shuffled: false,
-      playerPoints: prevState.playerPoints + parseInt(card.value),
     }));
   }
 
@@ -74,9 +77,9 @@ class App extends React.Component {
     const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
     console.log(shufflingDeck);
     this.setState({
-      shuffled: true,
-      remainingCards: shufflingDeck.remaining,
       playerPoints: 0,
+      remainingCards: shufflingDeck.remaining,
+      shuffled: true,
     });
   }
 
@@ -86,12 +89,12 @@ class App extends React.Component {
       <div className="container">
         <div className="dealer-card">
           {dealerCards.map((card) => (
-            <img key="current-card" src={card.image} width="100px" />
+            <img key="current-card" src={card.image} alt="dealer cards" />
           ))}
         </div>
         <div className="player-card">
           {playerCards.map((card) => (
-            <img key="current-card" src={card.image} width="100px" />
+            <img key="current-card" src={card.image} alt="player cards" />
           ))}
         </div>
         <button onClick={this.fetchCard}>Pegue uma carta</button>
