@@ -84,7 +84,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { playerCards, dealerCards } = this.state;
+    const { playerCards, dealerCards, playerPoints } = this.state;
     return (
       <div className="container">
         <div className="dealer-card">
@@ -97,6 +97,7 @@ class App extends React.Component {
             <img key="current-card" src={card.image} alt="player cards" />
           ))}
         </div>
+        <span>{playerPoints}</span>
         <button onClick={this.fetchCard}>Pegue uma carta</button>
         <button onClick={this.shuffleDeck}>Embaralhar Deck</button>
       </div>
