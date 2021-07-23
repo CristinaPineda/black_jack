@@ -37,10 +37,10 @@ class App extends React.Component {
     const cardJSON = await fetchDealerCard.json();
     const [card] = cardJSON.cards;
 
-    if (cardJSON.cards.value === 'KING' || cardJSON.cards.value === 'QUEEN' || cardJSON.cards.value === 'JACK') {
-      cardJSON.cards.value = 10;
+    if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
+      card.value = 10;
     } else if (cardJSON.cards.value === 'ACE') {
-      cardJSON.cards.value = 11;
+      card.value = 11;
     }
 
     this.setState((prevState) => ({
@@ -59,13 +59,15 @@ class App extends React.Component {
     const fetchCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
     const cardJSON = await fetchCard.json();
     const [card] = cardJSON.cards;
+
     if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
       card.value = 10;
     } else if (card.value === 'ACE') {
       card.value = 11;
     }
+
     this.setState((prevState) => ({
-      playerCards: cardJSON.cards,
+      playerCards: [...prevState.playerCards, card],
       playerPoints: prevState.playerPoints + parseInt(card.value),
       remainingCards: cardJSON.remaining,
       shuffled: false,
@@ -75,7 +77,7 @@ class App extends React.Component {
   async shuffleDeck() {
     const { deckID } = this.state;
     const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
-    console.log(shufflingDeck);
+
     this.setState({
       playerPoints: 0,
       remainingCards: shufflingDeck.remaining,
