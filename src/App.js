@@ -64,7 +64,11 @@ class App extends React.Component {
     if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
       card.value = 10;
     } else if (card.value === 'ACE') {
-      card.value = 11;
+      if (playerPoints > 11) {
+        card.value = 1;
+      } else {
+        card.value = 11;
+      }
     }
 
     this.setState((prevState) => ({
@@ -87,23 +91,24 @@ class App extends React.Component {
   }
 
   render() {
-    const { playerCards, dealerCards } = this.state;
+    const { playerCards, dealerCards, playerLost } = this.state;
     return (
       <main className="container">
         <h1>Blackjack!</h1>
         <div className="dealer-card">
           <h4>Dealer:</h4>
           {dealerCards.map((card) => (
-            <img key="current-card" src={card.image} alt="dealer cards" />
+            <img key={`card ${card.code}`} src={card.image} alt="dealer cards" />
           ))}
         </div>
         <div className="player-card">
           <h4>Suas cartas:</h4>
           <div>
             {playerCards.map((card) => (
-              <img key="current-card" src={card.image} alt="player cards" />
+              <img key={`card ${card.code}`} src={card.image} alt="player cards" />
             ))}
           </div>
+          {playerLost ? <div>PERDEU!!</div> : null}
         </div>
         <div className="play-buttons">
           <button onClick={this.fetchCard}>Pegue uma carta</button>
