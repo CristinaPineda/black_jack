@@ -19,6 +19,8 @@ export default class Game extends Component {
       playerCards: [],
       playerPoints: 0,
       playerLost: false,
+      playerTie: false,
+      playerWon: false,
       remainingCards: '',
       shuffled: false,
     };
@@ -115,18 +117,42 @@ export default class Game extends Component {
     }
   }
 
-  playerStand() {}
+  async playerStand() {
+    const { dealerPoints, playerPoints } = this.state;
+    if (dealerPoints < playerPoints) {
+      console.log('dealer tem menos pontos que o player, devo comprar');
+      const cardJSON = await this.fetchCard();
+      const [card] = cardJSON.cards;
+      this.valueConverter(card, dealerPoints);
+      this.setState((prevState) => ({
+        dealerCards: [...prevState.dealerCards, card],
+        dealerPoints: prevState.dealerPoints + parseInt(card.value),
+        remainingCards: cardJSON.remaining,
+      }));
+      if (dealerPoints === 21) {
+        this.setState({
+          playerLost: true,
+        });
+      }
+    } else if (dealerPoints === playerPoints) {
+      this.setState({
+        playerTie: true,
+      });
+    }
+  }
 
   render() {
-    const { playerCards, dealerCards, playerLost } = this.state;
+    const { playerCards, dealerCards, playerLost, playerWon, playerTie } = this.state;
     return (
       <main className="container">
         <h1>Blackjack!</h1>
         <div className="dealer-card">
           <h4>Dealer:</h4>
-          {dealerCards.map((card) => (
-            <img key={`card ${card.code}`} src={card.image} alt="dealer cards" />
-          ))}
+          <div>
+            {dealerCards.map((card) => (
+              <img key={`card ${card.code}`} src={card.image} alt="dealer cards" />
+            ))}
+          </div>
         </div>
         <div className="player-card">
           <h4>Suas cartas:</h4>
@@ -136,6 +162,8 @@ export default class Game extends Component {
             ))}
           </div>
           {!playerLost || <div>PERDEU!!</div>}
+          {playerWon ? <div>GANHOU!!</div> : null}
+          {playerTie ? <div>EMPATE!!</div> : null}
         </div>
         <div className="play-buttons">
           <button onClick={this.playerHits}>HIT (comprar)</button>
