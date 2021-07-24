@@ -9,6 +9,8 @@ export default class Game extends Component {
     this.shuffleDeck = this.shuffleDeck.bind(this);
     this.fetchCard = this.fetchCard.bind(this);
     this.playerStand = this.playerStand.bind(this);
+    this.playerHits = this.playerHits.bind(this);
+    this.valueConverter = this.valueConverter.bind(this);
 
     this.state = {
       deckID: '',
@@ -26,7 +28,29 @@ export default class Game extends Component {
     this.fetchDeck();
   }
 
+  async fetchCard() {
+    // Função pra comprar uma carta
+    const { deckID } = this.state;
+    const fetchCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
+    const cardJSON = await fetchCard.json();
+    return cardJSON;
+  }
+
+  valueConverter(card, playerPoints) {
+    // Converte valor de carda de figura em valor numérico
+    if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
+      return (card.value = 10);
+    } else if (card.value === 'ACE') {
+      if (playerPoints > 10) {
+        return (card.value = 1);
+      } else {
+        return (card.value = 11);
+      }
+    }
+  }
+
   async fetchDeck() {
+    const { dealerPoints } = this.state;
     // Se não tiver ID de deck salvo no localStorage ele vai requisitar um na API e colocar no localStorage
     if (!localStorage.getItem('deck-id')) {
       const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=3');
@@ -40,12 +64,7 @@ export default class Game extends Component {
     const cardJSON = await fetchDealerCard.json();
     const [card] = cardJSON.cards;
 
-    // Ao comprar a carda, se o valor dela for alguma carta de figura, vai transformar o valor em 10 ou 11 
-    if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
-      card.value = 10;
-    } else if (cardJSON.cards.value === 'ACE') {
-      card.value = 11;
-    }
+    this.valueConverter(card, dealerPoints);
 
     // Vai salvar informações no state
     this.setState((prevState) => ({
@@ -69,23 +88,12 @@ export default class Game extends Component {
     });
   }
 
-  async fetchCard() {
-    // Invocada onClick, vai fazer o fetch de uma carta para o jogador
-    const { deckID, playerPoints, remainingCards } = this.state;
-    const fetchCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
-    const cardJSON = await fetchCard.json();
+  async playerHits() {
+    const { playerPoints, remainingCards } = this.state;
+    const cardJSON = await this.fetchCard();
     const [card] = cardJSON.cards;
 
-    // Mesma transformação de valores, com a condicional de que se o jogador já tiver mais de 10 pontos, irá transformar o valor do Ás
-    if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
-      card.value = 10;
-    } else if (card.value === 'ACE') {
-      if (playerPoints > 10) {
-        card.value = 1;
-      } else {
-        card.value = 11;
-      }
-    }
+    this.valueConverter(card, playerPoints);
 
     // Caso o jogador tenha mais de 10 pontos e o valor da próxima carta comprada for >= 10 irá colocar um "PERDEU!!" na tela linha 129
     if ((playerPoints > 10 && card.value >= 10) || (playerPoints > 15 && card.value >= 6)) {
@@ -106,6 +114,7 @@ export default class Game extends Component {
       this.shuffleDeck();
     }
   }
+
   playerStand() {}
 
   render() {
@@ -129,7 +138,7 @@ export default class Game extends Component {
           {!playerLost || <div>PERDEU!!</div>}
         </div>
         <div className="play-buttons">
-          <button onClick={this.fetchCard}>HIT (comprar)</button>
+          <button onClick={this.playerHits}>HIT (comprar)</button>
           <button onClick={this.playerStand}>STAND (manter)</button>
         </div>
       </main>
