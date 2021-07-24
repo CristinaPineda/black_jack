@@ -1,22 +1,25 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Carousel } from 'react-responsive-carousel'
+import { Carousel } from 'react-responsive-carousel';
 import '../styles/Home.css';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import firstCarouselImg from '../img/dealer_blackjack.jpg';
 
 export default class Home extends Component {
   render() {
     return (
       <div>
-        <header className='header-home'>
-        <div className='div-header'>
-          <Link to='/about' className='btn-about'>About</Link>
-        </div>
+        <header className="header-home">
+          <div className="div-header">
+            <Link to="/about" className="btn-about">
+              About
+            </Link>
+          </div>
         </header>
-        <section className='section-carousel'>
-          <Carousel autoPlay='true'>
+        <section className="section-carousel">
+          <Carousel autoPlay="true">
             <div>
-              <p>1</p>
+              <img src={firstCarouselImg} alt="" />
             </div>
             <div>
               <p>2</p>
@@ -32,12 +35,14 @@ export default class Home extends Component {
             </div>
           </Carousel>
         </section>
-        <section className='section-play'>
-          <div className='div-section-play'>
-            <Link to='/game' className='btn-play'>PLAY</Link>
+        <section className="section-play">
+          <div className="div-section-play">
+            <Link to="/game" className="btn-play">
+              PLAY
+            </Link>
           </div>
         </section>
       </div>
-    )
+    );
   }
 }
