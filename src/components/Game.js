@@ -20,9 +20,11 @@ export default class Game extends Component {
       shuffled: false,
     };
   }
+
   componentDidMount() {
     this.fetchDeck();
   }
+
   async shuffleDeck() {
     const { deckID } = this.state;
     const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
@@ -54,7 +56,7 @@ export default class Game extends Component {
     }
 
     this.setState((prevState) => ({
-      deckID: deckID,
+      deckID,
       dealerCards: cardJSON.cards,
       dealerPoints: prevState.dealerPoints + parseInt(card.value),
       playerPoints: 0,
@@ -97,6 +99,9 @@ export default class Game extends Component {
       this.shuffleDeck();
     }
   }
+  playerStand() {
+    
+  }
 
   render() {
     const { playerCards, dealerCards, playerLost } = this.state;
@@ -116,11 +121,11 @@ export default class Game extends Component {
               <img key={`card ${card.code}`} src={card.image} alt="player cards" />
             ))}
           </div>
-          {playerLost ? <div>PERDEU!!</div> : null}
+          {!playerLost || <div>PERDEU!!</div>}
         </div>
         <div className="play-buttons">
-          <button onClick={this.fetchCard}>Pegue uma carta</button>
-          <button onClick={this.shuffleDeck}>Embaralhar Deck</button>
+          <button onClick={this.fetchCard}>HIT (comprar)</button>
+          {/* <button onClick={}>STAND (manter)</button> */}
         </div>
       </main>
     );
