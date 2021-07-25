@@ -9,7 +9,14 @@
 }
 
 .section-carousel {
-    background-color: darkgreen;
+    background-color: brown;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.section-play {
+    margin-top: 30px;
 }
 
 .div-header {
@@ -44,4 +51,22 @@
     color: gold;
     box-shadow: 0px 0px 35px gold, 0px 0px 15px gold inset;
     text-shadow: 0px 0px 10px gold, 0px 0px 3px gold;
+}
+
+.carousel .thumbs-wrapper {
+    display: none;
+    margin: 20px;
+    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.carousel.carousel-slider {
+    background: black;
+    height: 300px;
+    width: 900px;
+}
+
+carousel .carousel-status {
+    display: none;
 }

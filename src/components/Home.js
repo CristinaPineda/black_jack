@@ -4,6 +4,11 @@ import { Carousel } from 'react-responsive-carousel';
 import '../styles/Home.css';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import firstCarouselImg from '../img/dealer_blackjack.jpg';
+import secondCarouselImg from '../img/table_blackjack.jpg';
+import thirdCarouselImg from '../img/winner_blackjack.jpg';
+import fourthCarouselImg from '../img/players_blackjack.jpg';
+import fifthCarouselImg from '../img/deck_blackjack.jpg';
+
 
 export default class Home extends Component {
   render() {
@@ -17,21 +22,21 @@ export default class Home extends Component {
           </div>
         </header>
         <section className="section-carousel">
-          <Carousel autoPlay="true">
+          <Carousel autoPlay="true" width='600px' >
             <div>
-              <img src={firstCarouselImg} alt="" />
+              <img src={firstCarouselImg} alt="dealer-blackjack" />
             </div>
             <div>
-              <p>2</p>
+              <img src={secondCarouselImg} alt="table-blackjack" />
             </div>
             <div>
-              <p>3</p>
+              <img src={thirdCarouselImg} alt="winner-blackjack"/>
             </div>
             <div>
-              <p>4</p>
+              <img src={fourthCarouselImg} alt="players-blackjack" />
             </div>
             <div>
-              <p>5</p>
+              <img src={fifthCarouselImg} alt="deck-blackjack"/>
             </div>
           </Carousel>
         </section>
