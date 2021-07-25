@@ -39,7 +39,7 @@ export default class Game extends Component {
   }
 
   valueConverter(card, playerPoints) {
-    // Converte valor de carda de figura em valor numérico
+    // Converte valor de cada de figura em valor numérico
     if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK') {
       return (card.value = 10);
     } else if (card.value === 'ACE') {
@@ -52,7 +52,7 @@ export default class Game extends Component {
   }
 
   async fetchDeck() {
-    const { dealerPoints } = this.state;
+    const { dealerPoints, playerPoints } = this.state;
     // Se não tiver ID de deck salvo no localStorage ele vai requisitar um na API e colocar no localStorage
     if (!localStorage.getItem('deck-id')) {
       const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
@@ -67,7 +67,8 @@ export default class Game extends Component {
     const [card] = cardJSON.cards;
 
     this.valueConverter(card, dealerPoints);
-    
+    this.valueConverter(card, playerPoints);
+
     // Vai salvar informações no state
     this.setState((prevState) => ({
       deckID,
@@ -78,6 +79,7 @@ export default class Game extends Component {
       remainingCards: cardJSON.remaining,
       shuffled: false,
     }));
+    console.log(playerPoints)
   }
 
   async shuffleDeck() {
@@ -143,7 +145,7 @@ export default class Game extends Component {
   }
 
   render() {
-    const { playerCards, dealerCards, playerLost, playerWon, playerTie } = this.state;
+    const { playerCards, dealerCards, playerLost, playerWon, playerTie, playerPoints } = this.state;
     return (
       <main className="container">
         <h1>Blackjack!</h1>
@@ -157,6 +159,7 @@ export default class Game extends Component {
         </div>
         <div className="player-card">
           <h4>Player:</h4>
+          <span>Points: {playerPoints}</span>
           <div>
             {playerCards.map((card) => (
               <img key={`card ${card.code}`} src={card.image} alt="player cards" />
