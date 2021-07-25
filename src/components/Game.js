@@ -55,7 +55,7 @@ export default class Game extends Component {
     const { dealerPoints } = this.state;
     // Se não tiver ID de deck salvo no localStorage ele vai requisitar um na API e colocar no localStorage
     if (!localStorage.getItem('deck-id')) {
-      const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=3');
+      const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
       const gettingDeckJSON = await gettingDeckID.json();
       const deckID = gettingDeckJSON.deck_id;
       localStorage.setItem('deck-id', deckID);
@@ -67,14 +67,14 @@ export default class Game extends Component {
     const [card] = cardJSON.cards;
 
     this.valueConverter(card, dealerPoints);
-
+    
     // Vai salvar informações no state
     this.setState((prevState) => ({
       deckID,
       dealerCards: [cardJSON.cards[0],cardJSON.cards[1]],
+      dealerPoints: (prevState.dealerPoints) + (parseInt([cardJSON.cards[0].value])) + (parseInt([cardJSON.cards[1].value])) ,
       playerCards:[cardJSON.cards[2],cardJSON.cards[3]],
-      dealerPoints: prevState.dealerPoints + parseInt(card.value),
-      playerPoints: 0,
+      playerPoints: (prevState.playerPoints) + (parseInt([cardJSON.cards[2].value])) + (parseInt([cardJSON.cards[3].value])),
       remainingCards: cardJSON.remaining,
       shuffled: false,
     }));
@@ -149,7 +149,7 @@ export default class Game extends Component {
         <h1>Blackjack!</h1>
         <div className="dealer-card">
           <h4>Dealer:</h4>
-          <div>
+          <div className="cards-dealer" >
             {dealerCards.map((card) => (
               <img key={`card ${card.code}`} src={card.image} alt="dealer cards" />
             ))}
