@@ -155,7 +155,7 @@ export default class Game extends Component {
     return (
       <main className="container">
         <h1>Blackjack!</h1>
-        <button onClick={() => this.onChangeNewGame}>New Game</button>
+        <button onClick={this.onChangeNewGame}>New Game</button>
         <div className="dealer-card">
           <h4>Dealer:</h4>
           <div className="cards-dealer" >
