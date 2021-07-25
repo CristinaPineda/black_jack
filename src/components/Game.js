@@ -1,6 +1,19 @@
 import React, { Component } from 'react';
 import '../styles/Game.css';
 
+const INITIAL_STATE = {
+  deckID: '',
+  dealerCards: [],
+  dealerPoints: 0,
+  playerCards: [],
+  playerPoints: 0,
+  playerLost: false,
+  playerTie: false,
+  playerWon: false,
+  remainingCards: '',
+  shuffled: false,
+};
+
 export default class Game extends Component {
   constructor() {
     super();
@@ -11,19 +24,9 @@ export default class Game extends Component {
     this.playerStand = this.playerStand.bind(this);
     this.playerHits = this.playerHits.bind(this);
     this.valueConverter = this.valueConverter.bind(this);
+    this.onChangeNewGame = this.onChangeNewGame.bind(this);
 
-    this.state = {
-      deckID: '',
-      dealerCards: [],
-      dealerPoints: 0,
-      playerCards: [],
-      playerPoints: 0,
-      playerLost: false,
-      playerTie: false,
-      playerWon: false,
-      remainingCards: '',
-      shuffled: false,
-    };
+    this.state = INITIAL_STATE;
   }
 
   componentDidMount() {
@@ -52,7 +55,7 @@ export default class Game extends Component {
   }
 
   async fetchDeck() {
-    const { dealerPoints, playerPoints } = this.state;
+    const { dealerPoints } = this.state;
     // Se não tiver ID de deck salvo no localStorage ele vai requisitar um na API e colocar no localStorage
     if (!localStorage.getItem('deck-id')) {
       const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
@@ -67,7 +70,7 @@ export default class Game extends Component {
     const [card] = cardJSON.cards;
 
     this.valueConverter(card, dealerPoints);
-    this.valueConverter(card, playerPoints);
+    // this.valueConverter(card, playerPoints);
 
     // Vai salvar informações no state
     this.setState((prevState) => ({
@@ -79,7 +82,6 @@ export default class Game extends Component {
       remainingCards: cardJSON.remaining,
       shuffled: false,
     }));
-    console.log(playerPoints)
   }
 
   async shuffleDeck() {
@@ -144,11 +146,16 @@ export default class Game extends Component {
     }
   }
 
+  onChangeNewGame() {
+    console.log('toaki')
+  }
+
   render() {
     const { playerCards, dealerCards, playerLost, playerWon, playerTie, playerPoints } = this.state;
     return (
       <main className="container">
         <h1>Blackjack!</h1>
+        <button onClick={() => this.onChangeNewGame}>New Game</button>
         <div className="dealer-card">
           <h4>Dealer:</h4>
           <div className="cards-dealer" >
