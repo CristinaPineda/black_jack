@@ -128,8 +128,8 @@ export default class Game extends Component {
 
   async playerStand() {
     const { dealerPoints, playerPoints } = this.state;
-    if (dealerPoints < playerPoints) {
-      console.log('dealer tem menos pontos que o player, devo comprar');
+    // Se a pontuação do dealer for menor ou igual a 16 ele vai comprar uma carta.
+    if (dealerPoints <= 17) {
       const cardJSON = await this.fetchCard();
       const [card] = cardJSON.cards;
       this.valueConverter(card, dealerPoints);
@@ -138,15 +138,32 @@ export default class Game extends Component {
         dealerPoints: prevState.dealerPoints + parseInt(card.value),
         remainingCards: cardJSON.remaining,
       }));
-      if (dealerPoints === 21) {
+      if (dealerPoints > 21) {
+        this.setState({
+          playerWon: true,
+        });
+        console.log('Busted!');
+      } else if (dealerPoints === 21) {
         this.setState({
           playerLost: true,
         });
+        console.log('dealer Ganhou');
+      } else if (dealerPoints < 21 && dealerPoints === playerPoints) {
+        this.setState({
+          playerTie: true,
+        });
+        console.log('empate');
+      } else if (dealerPoints < 21 && dealerPoints > playerPoints) {
+        this.setState({
+          playerLost: true,
+        });
+        console.log('dealer Ganhou');
+      } else if (dealerPoints < 21 && dealerPoints < playerPoints) {
+        this.setState({
+          playerWon: true,
+        });
+        console.log('player Ganhou');
       }
-    } else if (dealerPoints === playerPoints) {
-      this.setState({
-        playerTie: true,
-      });
     }
   }
 
@@ -159,7 +176,6 @@ export default class Game extends Component {
     return (
       <main className="container">
         <h1>Blackjack!</h1>
-        <button onClick={() => this.onChangeNewGame}>New Game</button>
         <div className="dealer-card">
           <h4>Dealer:</h4>
           <div className="cards-dealer">
@@ -183,6 +199,7 @@ export default class Game extends Component {
         <div className="play-buttons">
           <button onClick={this.playerHits}>HIT (comprar)</button>
           <button onClick={this.playerStand}>STAND (manter)</button>
+          <button onClick={() => this.onChangeNewGame}>New Game</button>
         </div>
       </main>
     );
