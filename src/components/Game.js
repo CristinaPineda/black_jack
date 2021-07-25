@@ -62,7 +62,7 @@ export default class Game extends Component {
     }
     // Vai pegar o ID que está salvo em localStorage e já vai comprar uma carta para o DEALER
     const deckID = localStorage.getItem('deck-id');
-    const fetchDealerCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`);
+    const fetchDealerCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=4`);
     const cardJSON = await fetchDealerCard.json();
     const [card] = cardJSON.cards;
 
@@ -71,7 +71,8 @@ export default class Game extends Component {
     // Vai salvar informações no state
     this.setState((prevState) => ({
       deckID,
-      dealerCards: cardJSON.cards,
+      dealerCards: [cardJSON.cards[0],cardJSON.cards[1]],
+      playerCards:[cardJSON.cards[2],cardJSON.cards[3]],
       dealerPoints: prevState.dealerPoints + parseInt(card.value),
       playerPoints: 0,
       remainingCards: cardJSON.remaining,
@@ -155,7 +156,7 @@ export default class Game extends Component {
           </div>
         </div>
         <div className="player-card">
-          <h4>Suas cartas:</h4>
+          <h4>Player:</h4>
           <div>
             {playerCards.map((card) => (
               <img key={`card ${card.code}`} src={card.image} alt="player cards" />
