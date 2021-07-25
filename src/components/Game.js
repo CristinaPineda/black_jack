@@ -55,7 +55,7 @@ export default class Game extends Component {
   }
 
   async fetchDeck() {
-    const { dealerPoints } = this.state;
+    const { dealerPoints, playerPoints } = this.state;
     // Se não tiver ID de deck salvo no localStorage ele vai requisitar um na API e colocar no localStorage
     if (!localStorage.getItem('deck-id')) {
       const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
@@ -67,43 +67,49 @@ export default class Game extends Component {
     const deckID = localStorage.getItem('deck-id');
     const fetchDealerCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=4`);
     const cardJSON = await fetchDealerCard.json();
-    const [card] = cardJSON.cards;
 
-    this.valueConverter(card, dealerPoints);
-    // this.valueConverter(card, playerPoints);
+    const [card1, card2, card3, card4] = cardJSON.cards;
+
+    this.valueConverter(card1, dealerPoints);
+    this.valueConverter(card2, dealerPoints);
+    this.valueConverter(card3, playerPoints);
+    this.valueConverter(card4, playerPoints);
 
     // Vai salvar informações no state
     this.setState((prevState) => ({
       deckID,
-      dealerCards: [cardJSON.cards[0],cardJSON.cards[1]],
-      dealerPoints: (prevState.dealerPoints) + (parseInt([cardJSON.cards[0].value])) + (parseInt([cardJSON.cards[1].value])) ,
-      playerCards:[cardJSON.cards[2],cardJSON.cards[3]],
-      playerPoints: (prevState.playerPoints) + (parseInt([cardJSON.cards[2].value])) + (parseInt([cardJSON.cards[3].value])),
+      dealerCards: [card1, card2],
+      dealerPoints: prevState.dealerPoints + parseInt(card1.value) + parseInt(card2.value),
+      playerCards: [card3, card4],
+      playerPoints: prevState.playerPoints + parseInt(card3.value) + parseInt(card4.value),
       remainingCards: cardJSON.remaining,
       shuffled: false,
     }));
   }
 
   async shuffleDeck() {
-    const { deckID } = this.state;
-    const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
+    const { deckID, remainingCards } = this.state;
+    if (remainingCards < 15) {
+      const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
 
-    this.setState({
-      playerPoints: 0,
-      remainingCards: shufflingDeck.remaining,
-      shuffled: true,
-    });
+      this.setState({
+        playerPoints: 0,
+        remainingCards: shufflingDeck.remaining,
+        shuffled: true,
+      });
+    }
+    return;
   }
 
   async playerHits() {
-    const { playerPoints, remainingCards } = this.state;
+    const { playerPoints } = this.state;
     const cardJSON = await this.fetchCard();
     const [card] = cardJSON.cards;
 
     this.valueConverter(card, playerPoints);
 
     // Caso o jogador tenha mais de 10 pontos e o valor da próxima carta comprada for >= 10 irá colocar um "PERDEU!!" na tela linha 129
-    if ((playerPoints > 10 && card.value >= 10) || (playerPoints > 15 && card.value >= 6)) {
+    if ((playerPoints >= 11 && card.value >= 10) || (playerPoints > 15 && card.value >= 6)) {
       this.setState((prevState) => ({
         playerCards: [...prevState.playerCards, card],
         playerLost: true,
@@ -117,15 +123,13 @@ export default class Game extends Component {
       }));
     }
     // Caso o atual deck chegue a 14 cartas, irá embaralhar automaticamente pra evitar erro no feth da API
-    if (remainingCards < 15) {
-      this.shuffleDeck();
-    }
+    this.shuffleDeck();
   }
 
   async playerStand() {
     const { dealerPoints, playerPoints } = this.state;
-    if (dealerPoints < playerPoints) {
-      console.log('dealer tem menos pontos que o player, devo comprar');
+    // Se a pontuação do dealer for menor ou igual a 16 ele vai comprar uma carta.
+    if (dealerPoints <= 17) {
       const cardJSON = await this.fetchCard();
       const [card] = cardJSON.cards;
       this.valueConverter(card, dealerPoints);
@@ -134,20 +138,37 @@ export default class Game extends Component {
         dealerPoints: prevState.dealerPoints + parseInt(card.value),
         remainingCards: cardJSON.remaining,
       }));
-      if (dealerPoints === 21) {
+      if (dealerPoints > 21) {
+        this.setState({
+          playerWon: true,
+        });
+        console.log('Busted!');
+      } else if (dealerPoints === 21) {
         this.setState({
           playerLost: true,
         });
+        console.log('dealer Ganhou');
+      } else if (dealerPoints < 21 && dealerPoints === playerPoints) {
+        this.setState({
+          playerTie: true,
+        });
+        console.log('empate');
+      } else if (dealerPoints < 21 && dealerPoints > playerPoints) {
+        this.setState({
+          playerLost: true,
+        });
+        console.log('dealer Ganhou');
+      } else if (dealerPoints < 21 && dealerPoints < playerPoints) {
+        this.setState({
+          playerWon: true,
+        });
+        console.log('player Ganhou');
       }
-    } else if (dealerPoints === playerPoints) {
-      this.setState({
-        playerTie: true,
-      });
     }
   }
 
   onChangeNewGame() {
-    console.log('toaki')
+    console.log('toaki');
   }
 
   render() {
@@ -155,10 +176,9 @@ export default class Game extends Component {
     return (
       <main className="container">
         <h1>Blackjack!</h1>
-        <button onClick={() => this.onChangeNewGame}>New Game</button>
         <div className="dealer-card">
           <h4>Dealer:</h4>
-          <div className="cards-dealer" >
+          <div className="cards-dealer">
             {dealerCards.map((card) => (
               <img key={`card ${card.code}`} src={card.image} alt="dealer cards" />
             ))}
@@ -179,6 +199,7 @@ export default class Game extends Component {
         <div className="play-buttons">
           <button onClick={this.playerHits}>HIT (comprar)</button>
           <button onClick={this.playerStand}>STAND (manter)</button>
+          <button onClick={() => this.onChangeNewGame}>New Game</button>
         </div>
       </main>
     );

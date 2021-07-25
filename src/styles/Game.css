@@ -1,34 +1,40 @@
 body {
-    background-color: #016d29;
-  }
-  
-  main {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
-  
-  img {
-    width: 100px;
-  }
-  
-  .dealer-card {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
-  
-  .player-card {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-  }
-  
-  .play-buttons {
-    margin: 25px;
-  }
-  
-  button {
-    width: 100px;
-    margin: 7px;
-  }
+  background-color: #016d29;
+}
+
+main {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+img {
+  width: 100px;
+}
+
+.dealer-card {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.player-card {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.play-buttons {
+  margin: 20px;
+}
+
+button {
+  width: 100px;
+  margin: 7px;
+  color: #fff;
+  background-color: rgb(148, 8, 8);
+}
+
+.container button {
+  font-size: large;
+}
