@@ -55,7 +55,7 @@ export default class Game extends Component {
   }
 
   async fetchDeck() {
-    const { dealerPoints } = this.state;
+    const { dealerPoints, playerPoints } = this.state;
     // Se não tiver ID de deck salvo no localStorage ele vai requisitar um na API e colocar no localStorage
     if (!localStorage.getItem('deck-id')) {
       const gettingDeckID = await fetch('http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
@@ -67,18 +67,21 @@ export default class Game extends Component {
     const deckID = localStorage.getItem('deck-id');
     const fetchDealerCard = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/draw/?count=4`);
     const cardJSON = await fetchDealerCard.json();
-    const [card] = cardJSON.cards;
 
-    this.valueConverter(card, dealerPoints);
-    // this.valueConverter(card, playerPoints);
+    const [card1, card2, card3, card4] = cardJSON.cards;
+
+    this.valueConverter(card1, dealerPoints);
+    this.valueConverter(card2, dealerPoints);
+    this.valueConverter(card3, playerPoints);
+    this.valueConverter(card4, playerPoints);
 
     // Vai salvar informações no state
     this.setState((prevState) => ({
       deckID,
-      dealerCards: [cardJSON.cards[0],cardJSON.cards[1]],
-      dealerPoints: (prevState.dealerPoints) + (parseInt([cardJSON.cards[0].value])) + (parseInt([cardJSON.cards[1].value])) ,
-      playerCards:[cardJSON.cards[2],cardJSON.cards[3]],
-      playerPoints: (prevState.playerPoints) + (parseInt([cardJSON.cards[2].value])) + (parseInt([cardJSON.cards[3].value])),
+      dealerCards: [card1, card2],
+      dealerPoints: prevState.dealerPoints + parseInt(card1.value) + parseInt(card2.value),
+      playerCards: [card3, card4],
+      playerPoints: prevState.playerPoints + parseInt(card3.value) + parseInt(card4.value),
       remainingCards: cardJSON.remaining,
       shuffled: false,
     }));
@@ -147,7 +150,7 @@ export default class Game extends Component {
   }
 
   onChangeNewGame() {
-    console.log('toaki')
+    console.log('toaki');
   }
 
   render() {
@@ -158,7 +161,7 @@ export default class Game extends Component {
         <button onClick={() => this.onChangeNewGame}>New Game</button>
         <div className="dealer-card">
           <h4>Dealer:</h4>
-          <div className="cards-dealer" >
+          <div className="cards-dealer">
             {dealerCards.map((card) => (
               <img key={`card ${card.code}`} src={card.image} alt="dealer cards" />
             ))}
