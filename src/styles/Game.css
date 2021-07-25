@@ -25,10 +25,16 @@ img {
 }
 
 .play-buttons {
-  margin: 25px;
+  margin: 20px;
 }
 
 button {
   width: 100px;
   margin: 7px;
+  color: #fff;
+  background-color: rgb(148, 8, 8);
+}
+
+.container button {
+  font-size: large;
 }
