@@ -88,25 +88,28 @@ export default class Game extends Component {
   }
 
   async shuffleDeck() {
-    const { deckID } = this.state;
-    const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
+    const { deckID, remainingCards } = this.state;
+    if (remainingCards < 15) {
+      const shufflingDeck = await fetch(`http://deckofcardsapi.com/api/deck/${deckID}/shuffle/`);
 
-    this.setState({
-      playerPoints: 0,
-      remainingCards: shufflingDeck.remaining,
-      shuffled: true,
-    });
+      this.setState({
+        playerPoints: 0,
+        remainingCards: shufflingDeck.remaining,
+        shuffled: true,
+      });
+    }
+    return;
   }
 
   async playerHits() {
-    const { playerPoints, remainingCards } = this.state;
+    const { playerPoints } = this.state;
     const cardJSON = await this.fetchCard();
     const [card] = cardJSON.cards;
 
     this.valueConverter(card, playerPoints);
 
     // Caso o jogador tenha mais de 10 pontos e o valor da próxima carta comprada for >= 10 irá colocar um "PERDEU!!" na tela linha 129
-    if ((playerPoints > 10 && card.value >= 10) || (playerPoints > 15 && card.value >= 6)) {
+    if ((playerPoints >= 11 && card.value >= 10) || (playerPoints > 15 && card.value >= 6)) {
       this.setState((prevState) => ({
         playerCards: [...prevState.playerCards, card],
         playerLost: true,
@@ -120,9 +123,7 @@ export default class Game extends Component {
       }));
     }
     // Caso o atual deck chegue a 14 cartas, irá embaralhar automaticamente pra evitar erro no feth da API
-    if (remainingCards < 15) {
-      this.shuffleDeck();
-    }
+    this.shuffleDeck();
   }
 
   async playerStand() {
